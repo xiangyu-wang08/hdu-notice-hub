@@ -4,7 +4,7 @@
 
 当前版本：**V1.0.0**。项目由学生开发和维护，**非学校官方平台**；通知要求、正文和附件请以官方原文为准。
 
-[下载 Windows 免安装版](https://github.com/xiangyu-wang08/hdu-notice-hub/releases/download/V1.0.0/hdu-notice-hub-V1.0.0-windows-x64.zip) · [安装与使用手册](docs/INSTALL.md) · [下载 PDF 手册](https://github.com/xiangyu-wang08/hdu-notice-hub/releases/download/V1.0.0/hdu-notice-hub-V1.0.0-install.pdf) · [全部版本](https://github.com/xiangyu-wang08/hdu-notice-hub/releases)
+[下载 Windows 安装程序](https://github.com/xiangyu-wang08/hdu-notice-hub/releases/download/V1.0.0/hdu-notice-hub-V1.0.0-windows-x64-Setup.exe) · [安装与使用手册](docs/INSTALL.md) · [下载 PDF 手册](https://github.com/xiangyu-wang08/hdu-notice-hub/releases/download/V1.0.0/hdu-notice-hub-V1.0.0-install.pdf) · [全部版本](https://github.com/xiangyu-wang08/hdu-notice-hub/releases)
 
 ## 能做什么
 
@@ -26,15 +26,19 @@
 
 ## 快速开始
 
-### Windows 10 / 11 x64：免安装版
+### Windows 10 / 11 x64：安装版（推荐）
 
-1. 下载 [hdu-notice-hub-V1.0.0-windows-x64.zip](https://github.com/xiangyu-wang08/hdu-notice-hub/releases/download/V1.0.0/hdu-notice-hub-V1.0.0-windows-x64.zip)。
-2. 将整个 ZIP 解压到有写入权限的普通文件夹，保留 `_internal` 文件夹。
-3. 双击 `杭电通知集.exe`，浏览器会自动打开本机网页。
-4. 点击 **一键获取通知**。首次使用没有历史缓存，需要联网获取。
-5. 使用结束后双击同目录的 `关闭服务.cmd`，或在服务窗口按 `Ctrl+C`。
+1. 点击 [下载 Setup.exe](https://github.com/xiangyu-wang08/hdu-notice-hub/releases/download/V1.0.0/hdu-notice-hub-V1.0.0-windows-x64-Setup.exe)，不用下载或解压程序 ZIP。
+2. 双击安装程序，按中文安装向导完成安装。默认安装到当前用户目录，不需要安装 Python 或管理员权限。
+3. 使用桌面或开始菜单中的 **杭电通知集** 快捷方式启动，浏览器会自动打开本机网页。
+4. 点击 **一键获取通知**。首次使用需要联网获取。
+5. 使用结束后，在开始菜单选择 **杭电通知集 → 关闭服务**，或关闭启动时的服务窗口。
 
-使用期间保持服务窗口运行，可以将其最小化。只关闭网页不会停止服务。默认地址为 `http://127.0.0.1:8765/`；端口被占用时自动尝试 `8766` 至 `8775`，以服务窗口显示的地址为准。`127.0.0.1` 指向使用者自己的电脑。
+卸载可使用 Windows“设置 → 应用”或开始菜单的“卸载”入口。升级和卸载会先关闭本程序服务；卸载保留通知缓存和用户额外添加的文件。如需彻底删除，先备份所需缓存，再手工删除残留目录。
+
+使用期间保持服务窗口运行，可以最小化。只关闭网页不会停止服务。默认地址为 `http://127.0.0.1:8765/`；端口占用时尝试 `8766` 至 `8775`，以窗口显示地址为准。
+
+如需免安装使用，也提供 [便携 ZIP](https://github.com/xiangyu-wang08/hdu-notice-hub/releases/download/V1.0.0/hdu-notice-hub-V1.0.0-windows-x64.zip)：完整解压并保留 `_internal`，双击 EXE，结束时运行同目录的 `关闭服务.cmd`。
 
 ### Python 3.10+：源码版
 
@@ -127,7 +131,7 @@ docs/INSTALL.md           安装与使用手册
 python -m unittest discover -s tests -v
 ```
 
-制作 Windows 免安装包需要额外的构建依赖；普通用户不需要安装它们。在 Windows x64、Python 3.12 环境下：
+制作 Windows 安装程序与便携包需要额外的构建依赖；普通用户不需要安装它们。在 Windows x64、Python 3.12 环境下，另需安装 [Unicode NSIS 3](https://nsis.sourceforge.io/Download)，并确保 `makensis.exe` 位于 PATH；也可向构建脚本传入 `-Makensis` 完整路径：
 
 ```powershell
 py -3.12 -m venv .venv-build
@@ -145,6 +149,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File packaging/build.ps1
 ```
 
 源码启动、关闭和离线集成检查可运行 `python packaging/smoke_test.py --source`。构建后运行 `python packaging/test_portable.py` 检查免安装包；加 `--online` 会额外读取全部官网并要求本次访问成功，适合人工发布验收，不用于日常离线测试。
+
+安装程序的实机生命周期检查：`python packaging/test_installer_windows.py`。它会在 QA 目录安装、升级和卸载，检查快捷方式、当前用户注册信息及缓存保留；发现已有真实安装或同名快捷方式时会停止，避免覆盖。
 
 ## 许可与致谢
 

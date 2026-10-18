@@ -8,39 +8,64 @@
 
 | 方式 | 适用情况 | 需要准备 |
 | --- | --- | --- |
+| Windows 安装版（推荐） | 下载一个 Setup.exe 并安装，之后使用快捷方式 | Windows 10 / 11 x64、浏览器 |
 | Windows 免安装版 | 希望下载后直接使用 | Windows 10 / 11 x64、浏览器、可写文件夹 |
 | Python 源码版 | 已有 Python，或希望阅读、修改代码 | Python 3.10+、浏览器、完整源码 |
 
 免安装版不需要安装 Python、Node.js、Codex 或第三方依赖，也不需要学校账号或 API Key。源码版正常运行仅使用 Python 标准库，无需 `pip install`。获取新通知和打开官方原文需要网络；查看已保存的列表可以离线进行。
 
-本手册主要说明 Windows 操作。源码可以在具备相应 Python 环境的系统中运行，但本版本的免安装发布包面向 Windows x64。
+本手册主要说明 Windows 操作。源码可以在具备相应 Python 环境的系统中运行；安装版和便携版发布包均面向 Windows x64。
 
 ## 2. 下载文件
 
-打开 [V1.0.0 发布页](https://github.com/xiangyu-wang08/hdu-notice-hub/releases/tag/V1.0.0)，在 Assets 中选择：
+打开 [V1.0.0 发布页](https://github.com/xiangyu-wang08/hdu-notice-hub/releases/tag/V1.0.0)，在 Assets 中优先选择安装程序：
 
 | 文件 | 用途 |
 | --- | --- |
-| [hdu-notice-hub-V1.0.0-windows-x64.zip](https://github.com/xiangyu-wang08/hdu-notice-hub/releases/download/V1.0.0/hdu-notice-hub-V1.0.0-windows-x64.zip) | Windows 免安装程序，普通用户优先选择 |
+| [hdu-notice-hub-V1.0.0-windows-x64-Setup.exe](https://github.com/xiangyu-wang08/hdu-notice-hub/releases/download/V1.0.0/hdu-notice-hub-V1.0.0-windows-x64-Setup.exe) | 推荐：双击安装，之后从桌面或开始菜单启动，无需手动解压 |
+| [hdu-notice-hub-V1.0.0-windows-x64.zip](https://github.com/xiangyu-wang08/hdu-notice-hub/releases/download/V1.0.0/hdu-notice-hub-V1.0.0-windows-x64.zip) | 备用便携版，需要完整解压后运行 |
 | [hdu-notice-hub-V1.0.0-source.zip](https://github.com/xiangyu-wang08/hdu-notice-hub/releases/download/V1.0.0/hdu-notice-hub-V1.0.0-source.zip) | 完整项目源码，需要 Python |
 | [hdu-notice-hub-V1.0.0-install.pdf](https://github.com/xiangyu-wang08/hdu-notice-hub/releases/download/V1.0.0/hdu-notice-hub-V1.0.0-install.pdf) | 可下载保存的安装手册 |
 
-从项目发布页获取文件，并保留完整 ZIP 便于重新解压。若发布页提供 `SHA256.json`，可在 PowerShell 中计算下载文件的校验值，与清单中同名文件的值逐字比较：
+安装版只需下载 Setup.exe；选择便携版或源码版时保留 ZIP 便于再次解压。可同时下载 `SHA256.json`，在 PowerShell 中计算文件校验值，与清单中同名文件的值逐字比较：
 
 ```powershell
-Get-FileHash -Algorithm SHA256 `
-    -LiteralPath "$env:USERPROFILE\Downloads\hdu-notice-hub-V1.0.0-windows-x64.zip"
+$file = Join-Path $env:USERPROFILE 'Downloads'
+$file = Join-Path $file 'hdu-notice-hub-V1.0.0-windows-x64-Setup.exe'
+Get-FileHash -Algorithm SHA256 -LiteralPath $file
 ```
 
 若浏览器把文件保存到别处，请把命令中的路径换成实际文件路径。
 
-## 3. 使用 Windows 免安装版
+## 3. 使用 Windows 安装版（推荐）
 
-### 3.1 确认电脑类型
+### 3.1 下载与安装
+
+在 V1.0.0 发布页点击 `hdu-notice-hub-V1.0.0-windows-x64-Setup.exe`。下载完成后双击，按中文安装向导接受 MIT 许可、确认目录并安装。不需要先解压 ZIP，也不需要安装 Python。
+
+默认目录为 `%LOCALAPPDATA%\Programs\HDUNoticeHub`，安装和快捷方式只面向当前用户，不要求管理员权限。也可以选择空目录，或本程序已有的安装目录；安装程序会拒绝覆盖不属于本程序的非空目录。
+
+### 3.2 启动与关闭
+
+安装完成后使用桌面或开始菜单中的“杭电通知集”快捷方式。也可以在安装完成页面勾选运行。浏览器会自动打开通知网页，点击“一键获取通知”即可使用。
+
+启动时的服务窗口需要保持运行，可以最小化。结束时从开始菜单选择“杭电通知集 → 关闭服务”，或者在服务窗口按 Ctrl+C、关闭该窗口。只关闭浏览器不会停止服务。开始菜单同时提供安装手册入口。
+
+### 3.3 升级与卸载
+
+升级时下载新版 Setup.exe，安装到原目录；安装程序先关闭本程序服务，再替换程序文件并保留 `data/` 缓存。安装程序不会设置开机自启。
+
+卸载时使用 Windows“设置 → 应用”中的“杭电通知集”，或开始菜单的“卸载”。卸载会关闭服务、移除程序文件、快捷方式和当前用户卸载登记，保留通知缓存和额外添加的文件。如需彻底删除，先备份所需内容，再手工删除残留安装目录。
+
+安装版网页功能、端口和筛选规则与下文便携版相同。
+
+## 4. 使用 Windows 免安装版
+
+### 4.1 确认电脑类型
 
 在 Windows“设置 → 系统 → 系统信息／关于”中查看“系统类型”，确认是 x64 系统。本发布包不面向 32 位 Windows 或原生 ARM64 环境。
 
-### 3.2 完整解压
+### 4.2 完整解压
 
 1. 在文件资源管理器中找到下载的 ZIP。
 2. 右键选择“全部解压缩”，将其解压到桌面、文档或其他你有写入权限的普通文件夹。
@@ -49,7 +74,7 @@ Get-FileHash -Algorithm SHA256 `
 
 不要在压缩软件的预览窗口中直接运行。不要只复制 EXE；`_internal` 包含运行环境和网页资源，缺少它会导致启动失败。使用期间不要移动或删除程序目录。
 
-### 3.3 启动
+### 4.3 启动
 
 双击 `杭电通知集.exe`。出现服务窗口后，浏览器会自动打开网页。服务窗口可以最小化，使用期间应保持运行。
 
@@ -57,7 +82,7 @@ Get-FileHash -Algorithm SHA256 `
 
 `127.0.0.1` 表示当前电脑。此服务只监听本机地址，不是可转发给朋友使用的公网网址；手机访问自己的 `127.0.0.1` 也不会连接到电脑上的程序。
 
-### 3.4 第一次获取通知
+### 4.4 第一次获取通知
 
 1. 保持电脑联网，点击网页中的“一键获取通知”。
 2. 等待各来源完成读取。不同来源独立显示状态，不必等所有来源都成功才能查看已有内容。
@@ -66,15 +91,15 @@ Get-FileHash -Algorithm SHA256 `
 
 首次启动没有历史缓存，列表为空是正常现象。新安装包不包含开发者电脑上的历史通知数据。
 
-### 3.5 关闭和再次启动
+### 4.5 关闭和再次启动
 
 双击同目录的 `关闭服务.cmd`。也可以在启动时的服务窗口按 `Ctrl+C`，或关闭该服务窗口。看到服务停止提示后，再关闭网页即可。
 
 只关闭浏览器标签页不会停止本地服务。程序不会自动设置开机启动；下次使用重新双击 EXE。再次启动时会恢复本地缓存，并在你点击获取后联网更新。
 
-## 4. 使用 Python 源码版
+## 5. 使用 Python 源码版
 
-### 4.1 安装或检查 Python
+### 5.1 安装或检查 Python
 
 如果已安装 Python，在 PowerShell 或命令提示符中运行：
 
@@ -88,7 +113,7 @@ python --version
 
 本项目的 Windows 打包环境使用 Python 3.12；源码运行最低要求为 Python 3.10。不要把没有安装解释器、只打开商店或安装提示的 `python` 命令当作可用环境。
 
-### 4.2 下载并打开源码目录
+### 5.2 下载并打开源码目录
 
 完整解压 `hdu-notice-hub-V1.0.0-source.zip`。打开包含下列内容的目录：
 
@@ -107,7 +132,7 @@ Set-Location -LiteralPath 'D:\Apps\hdu-notice-hub'
 
 上面是示例路径，请替换为你实际解压得到的目录，不必创建同名文件夹。
 
-### 4.3 启动与停止
+### 5.3 启动与停止
 
 在源码根目录运行：
 
@@ -125,7 +150,7 @@ python portable_launcher.py --stop
 
 如果 `python` 不可用，但 `py -3.12` 检查正常，可以将上述命令的 `python` 换为 `py -3.12`。不要混用不同项目目录里的启动和停止命令。
 
-### 4.4 可选：使用虚拟环境
+### 5.4 可选：使用虚拟环境
 
 运行本项目不要求虚拟环境。如果希望与其他 Python 项目分开，在源码根目录执行：
 
@@ -142,7 +167,7 @@ python -m venv .venv
 
 这组命令直接使用虚拟环境解释器，无需运行激活脚本，也无需更改 PowerShell 执行策略。普通使用不要安装 `packaging/build-requirements.txt`；那是制作 EXE 时才需要的构建依赖。
 
-### 4.5 开发时手动指定端口
+### 5.5 开发时手动指定端口
 
 需要固定其他端口时，可直接启动服务：
 
@@ -152,15 +177,15 @@ python server.py --port 8766
 
 然后在浏览器打开 `http://127.0.0.1:8766/`。这种方式不自动打开浏览器，也不提供启动器的自动端口回退；请在运行此命令的终端按 `Ctrl+C` 停止。`portable_launcher.py --stop` 只负责通过启动器运行的实例。
 
-## 5. 理解筛选与读取状态
+## 6. 理解筛选与读取状态
 
-### 5.1 覆盖范围
+### 6.1 覆盖范围
 
 本版本接入 6 个校级平台和 19 个学院／教学单位，共 25 个选定公开栏目。校级平台包括教务处、学校官网、图书馆、研究生院、就业网和学工部。完整清单见 [README](../README.md)。
 
 每次每个来源最多读取五页，不保证覆盖全校、所有栏目或全部历史通知。时间筛选只作用于已读取内容，因此“近 90 天”不代表这 90 天的通知已被全部读取，“全部已获取”也不等于全部历史通知。
 
-### 5.2 筛选与原文
+### 6.2 筛选与原文
 
 - “全部来源／校级平台／学院／教学单位”用于筛选分组，“具体来源”用于进一步选择栏目。
 - 时间范围可选近 7 天、近 30 天、近 90 天或全部已获取，依据通知发布日期筛选。
@@ -168,7 +193,7 @@ python server.py --port 8766
 - 默认分批显示列表，点击“再显示 20 条”继续浏览。
 - 图书馆等来源的部分原文可能指向微信公众号；程序只读取官方列表中的链接，不抓取公众号正文。
 
-### 5.3 状态判断
+### 6.3 状态判断
 
 | 状态 | 如何理解 |
 | --- | --- |
@@ -184,19 +209,21 @@ python server.py --port 8766
 
 点击“重试失败来源”只重试部分获取和失败的来源。两次获取之间至少等待 30 秒；间隔不足时，等待后再试，避免反复点击。
 
-## 6. 数据保存、离线、升级与卸载
+## 7. 数据保存、离线、升级与卸载
 
-### 6.1 本机保存位置
+### 7.1 本机保存位置
 
 程序在自身目录下创建 `data/`，其中 `notices.json` 保存已获取的列表。启动器还会使用 `portable-runtime.json` 记录本机运行实例信息；它是运行控制文件，不是通知备份。
 
 源码版的数据目录与源码同级；免安装版的数据目录与 EXE 同级。程序不要求写入管理员目录，也不需要上传这些数据给项目维护者。
 
-### 6.2 离线使用
+### 7.2 离线使用
 
 曾经成功保存缓存后，离线启动仍可查看并筛选本地列表。离线不能获取新通知，原文和附件也可能无法打开。缓存反映上次获取结果，请留意来源状态、发布日期和更新时间。
 
-### 6.3 升级
+### 7.3 升级
+
+安装版按照第 3.3 节运行新版 Setup.exe。下面步骤适用于便携 ZIP 和源码 ZIP：
 
 1. 关闭旧版服务。
 2. 如需保留缓存，先将旧目录中的 `data/notices.json` 复制到独立备份位置。
@@ -206,13 +233,17 @@ python server.py --port 8766
 
 不要迁移 `portable-runtime.json`，也不要把旧版 `_internal` 与新版混合。缓存兼容性应以新版说明为准，独立备份能避免覆盖后无法恢复。
 
-### 6.4 卸载
+### 7.4 卸载
+
+安装版使用第 3.3 节的 Windows 应用卸载或开始菜单入口，默认保留缓存；下面的直接删除方式适用于便携版与源码版。
 
 关闭服务后，删除整个解压文件夹即可。需要保留记录时先备份 `data/notices.json`。程序不自动设置开机启动。
 
-## 7. 常见问题
+## 8. 常见问题
 
 ### 双击后没有页面，或提示缺少文件
+
+安装版先关闭服务，再重新运行 Setup.exe 安装到原目录。以下文件检查适用于便携 ZIP 版本：
 
 确认 ZIP 已完整解压，EXE 与 `_internal` 仍在同一个目录，并且目录可写。重新从项目发布页下载、核对校验值并解压到新目录。若有错误窗口，记录完整内容；不要只转发 EXE。
 
@@ -242,13 +273,13 @@ python server.py --port 8766
 
 ### 输入 `python` 打开商店，或提示找不到命令
 
-这通常表示当前命令没有找到可用解释器。按第 4.1 节安装并验证 Python；若 `py -3.12 --version` 正常，直接使用 `py -3.12 portable_launcher.py`。使用解释器完整路径时，PowerShell 的写法为 `& '你的Python路径\python.exe' portable_launcher.py`。
+这通常表示当前命令没有找到可用解释器。按第 5.1 节安装并验证 Python；若 `py -3.12 --version` 正常，直接使用 `py -3.12 portable_launcher.py`。使用解释器完整路径时，PowerShell 的写法为 `& '你的Python路径\python.exe' portable_launcher.py`。
 
 ### 停止服务后网页仍然显示内容
 
 已经显示的页面可能仍留在标签页中。点击获取会无法连接；这不表示服务仍在运行。可关闭网页；下次启动后使用新的服务窗口地址访问。
 
-## 8. 反馈与许可
+## 9. 反馈与许可
 
 反馈入口：[GitHub Issues](https://github.com/xiangyu-wang08/hdu-notice-hub/issues)。请提供 V1.0.0、系统类型、运行方式、具体来源、复现步骤和完整错误，提交前去除个人信息与凭据。
 

@@ -42,3 +42,7 @@
 程序读取 `sources.py` 配置的公开通知列表，只整理来源、标题、发布日期和原文链接。通知正文和附件由对应官方站点提供，部分原文可能位于微信公众号等外部平台。相关内容及标识归各自权利人所有，本项目的开源许可不改变其权利状态。
 
 本项目非杭州电子科技大学及各来源单位的官方产品，不代表学校或相关网站运营方。
+
+## Windows 安装程序
+
+Setup.exe 由 [NSIS](https://nsis.sourceforge.io/) 制作；安装脚本位于 `packaging/installer.nsi`，构建工具 `makensis` 与 Python 运行依赖分离。本次使用已安装的 Unicode NSIS（编译器报告 `v27-Jul-2026.cvs`），安装引导器和相关组件适用 [NSIS 官方许可](https://nsis.sourceforge.io/License)，不由本项目 MIT 许可替代。
