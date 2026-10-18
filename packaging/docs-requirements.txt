@@ -1,0 +1,5 @@
+# Documentation generation only. App users do not need these packages.
+reportlab==4.4.9
+
+# Used by the PDF text/link verification command and release QA.
+pypdf==6.10.0

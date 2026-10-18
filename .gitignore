@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.venv*/
+data/
+qa/
+build/
+dist/
+release/
+*.spec
+.superpowers/
+.env
+.env.*
+!.env.example
+.playwright-mcp/
