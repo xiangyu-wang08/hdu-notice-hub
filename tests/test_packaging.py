@@ -41,7 +41,8 @@ class ReleaseTests(unittest.TestCase):
             self.fixture(root)
             self.assertTrue(callable(getattr(package, 'export_release', None)), 'standalone export_release is missing')
             out = package.export_release(root)
-            self.assertEqual(out, root / 'release' / 'V1.0.0')
+            # Windows TEMP can use an 8.3 alias while export_release returns a resolved path.
+            self.assertEqual(out, (root / 'release' / 'V1.0.0').resolve())
             with zipfile.ZipFile(out / 'hdu-notice-hub-V1.0.0-source.zip') as archive:
                 names = {name.split('/', 1)[1] for name in archive.namelist()}
                 for required in ('LICENSE', 'version.py', 'VERSION', 'docs/INSTALL.md', 'docs/INSTALL.pdf', 'docs/images/desktop.png', '.github/workflows/tests.yml'):
