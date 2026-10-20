@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import socket
+import ssl
 import tempfile
 import threading
 import time
@@ -317,6 +318,15 @@ class TaskTests(unittest.TestCase):
 
 @unittest.skipUnless(os.name == 'nt', 'Windows DPAPI is required for credential storage')
 class TransportTests(unittest.TestCase):
+    def setUp(self):
+        # These fixtures time DNS/socket cancellation, not Windows CA-store I/O.
+        # Prepare the real verified context before starting a 60 ms deadline;
+        # otherwise a slow trust-store load can prevent reaching the tested I/O.
+        context = ssl.create_default_context()
+        factory = patch('ssl._create_default_https_context', return_value=context)
+        factory.start()
+        self.addCleanup(factory.stop)
+
     def test_connection_probe_allows_reasoning_then_final_text_and_sends_a_message(self):
         seen = []
         class OfflineHTTPS(HTTPSHandler):
@@ -375,12 +385,14 @@ class TransportTests(unittest.TestCase):
 
     def test_slow_drip_body_obeys_total_deadline_not_each_socket_read(self):
         body = json.dumps({'choices': [{'message': {'content': 'offline success'}}]}).encode('utf-8')
+        body_started = threading.Event()
         class SlowBody(BaseHTTPRequestHandler):
             def do_POST(self):
                 self.rfile.read(int(self.headers['Content-Length']))
                 self.send_response(200)
                 self.send_header('Content-Length', str(len(body)))
                 self.end_headers()
+                body_started.set()
                 try:
                     for offset in range(0, len(body), 8):
                         self.wfile.write(body[offset:offset + 8])
@@ -407,6 +419,7 @@ class TransportTests(unittest.TestCase):
             with self.assertRaises(TimeoutError):
                 _chat_request(config, [{'role': 'user', 'content': 'offline'}], timeout=.06)
         self.assertLess(time.monotonic() - started, .18)
+        self.assertTrue(body_started.is_set(), 'the fixture must reach body reading before timing out')
 
     def test_slow_drip_headers_are_interrupted_before_response_exists(self):
         disconnected = threading.Event()
