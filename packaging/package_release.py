@@ -11,7 +11,7 @@ TAG = (ROOT / 'VERSION').read_text(encoding='utf-8').strip() if (ROOT / 'VERSION
 OUT = ROOT / 'release' / TAG
 BUNDLE = OUT / '免安装程序'
 QA_ROOT = ROOT / 'qa'
-SOURCE_FILES = ('VERSION', 'version.py', 'server.py', 'sources.py', 'portable_launcher.py',
+SOURCE_FILES = ('VERSION', 'version.py', 'server.py', 'sources.py', 'ai_service.py', 'notice_content.py', 'portable_launcher.py',
                 'README.md', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'CONTRIBUTING.md', 'CHANGELOG.md',
                 'start.cmd', 'start.ps1', 'stop.cmd', 'stop.ps1', '.gitignore')
 SOURCE_DIRS = ('web', 'tests', 'packaging', 'docs', '.github')

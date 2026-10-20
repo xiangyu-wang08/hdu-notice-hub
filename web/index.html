@@ -2,13 +2,13 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>杭电通知集 · 校园信息，一处汇集</title>
+  <title>杭电通知集 · V1.0.1</title>
   <meta name="description" content="本机运行的杭电通知聚合工具，汇集校级平台与各学院公开通知。">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/style.css">
   <script src="/app.js" defer></script>
 </head>
 <body>
-  <header class="topbar"><div class="brand"><span class="brand-icon" aria-hidden="true">讯</span><span>杭电通知集<span class="brand-en">HDU NOTICE</span></span></div><span class="local-pill"><i></i> 本机运行</span></header>
+  <header class="topbar"><div class="brand"><span class="brand-icon" aria-hidden="true">讯</span><span>杭电通知集<span class="brand-en">HDU NOTICE</span></span></div><span class="local-pill"><i></i> V1.0.1 · 本机运行</span></header>
   <main>
     <section class="hero">
       <div class="hero-copy"><div class="eyebrow">少一点来回查找，多一点从容。</div><h1>校园通知，<span>一处汇集。</span></h1><p>教务动态、竞赛报名、学院公告，一次查看。</p><div class="hero-actions"><button id="refresh" class="primary"><span id="refresh-icon" aria-hidden="true">↻</span><span id="refresh-text">一键获取通知</span></button><span id="last-updated">点击获取，读取各官方栏目的近期通知</span></div></div>
@@ -18,8 +18,14 @@
     <section class="sources" id="sources" aria-label="通知来源，可滚动查看全部来源" tabindex="0" hidden></section>
     <div id="status-message" class="message" role="status" aria-live="polite" hidden></div>
     <section class="notice-panel" aria-labelledby="notice-heading">
+      <div class="mode-toolbar"><div class="mode-switch" role="group" aria-label="搜索方式"><button id="mode-normal" class="mode-button active" type="button" aria-pressed="true">普通搜索</button><button id="mode-ai" class="mode-button" type="button" aria-pressed="false">问问 AI</button></div><button id="ai-settings-open" class="secondary" type="button" aria-haspopup="dialog">AI 设置</button></div>
       <div class="panel-heading"><div><h2 id="notice-heading">近期通知 <span id="result-count">0</span></h2><p id="range-note">按官网发布日期排序，最新消息优先</p></div><label class="search"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="搜索通知标题…" aria-label="搜索通知标题" autocomplete="off"><kbd>/</kbd></label></div>
       <div class="filters"><div class="source-tabs" id="source-tabs" role="group" aria-label="筛选来源分组"><button class="tab active" data-source="all" aria-pressed="true">全部来源</button><button class="tab" data-source="school" aria-pressed="false">校级平台</button><button class="tab" data-source="college" aria-pressed="false">学院／教学单位</button></div><label class="source-picker">具体来源 <select id="source-select" aria-label="选择具体来源"></select></label><label class="time-filter">时间范围 <select id="days"><option value="7">近 7 天</option><option value="30" selected>近 30 天</option><option value="90">近 90 天</option><option value="0">全部已获取</option></select></label></div>
+      <div id="ai-selection-bar" class="ai-selection-bar" hidden><div><strong id="ai-selection-count" aria-live="polite">已选 0 / 10 条</strong><p>默认选择当前筛选结果中最新 5 条，可勾选调整，最多 10 条。</p></div><div class="selection-actions"><button id="ai-select-default" class="text-button" type="button">选择最新 5 条</button><button id="ai-clear-selection" class="text-button" type="button">清空</button></div></div>
+      <section id="ai-workspace" class="ai-workspace" aria-labelledby="ai-question-heading" hidden>
+        <form id="ai-question-form"><div class="ai-question-heading"><h3 id="ai-question-heading">基于选中的通知提问</h3><span id="ai-config-status">正在读取 AI 配置…</span></div><label class="sr-only" for="ai-question">你想了解什么</label><textarea id="ai-question" rows="3" maxlength="1000" placeholder="留空可概括通知；也可提问：哪些活动还可以报名？请整理截止日期和报名要求。" aria-describedby="ai-question-help ai-question-length"></textarea><div class="ai-question-footer"><p id="ai-question-help">仅在点击「问问 AI」后读取所选通知正文并调用你配置的服务；问题和正文会发送至该服务，可能产生费用。</p><span id="ai-question-length">0 / 1000</span></div><div class="ai-submit-row"><span id="ai-form-message" role="status" aria-live="polite"></span><button id="ai-ask" class="primary" type="submit">问问 AI</button></div></form>
+        <section id="ai-task" class="ai-task" aria-labelledby="ai-task-heading" hidden><div class="ai-task-heading"><h3 id="ai-task-heading">本次回答</h3><div class="ai-task-status-group"><span id="ai-task-status" role="status" aria-live="polite"></span><button id="ai-task-check" class="text-button" type="button" hidden>继续查看</button></div></div><p id="ai-task-question" class="ai-task-question"></p><progress id="ai-task-progress" max="100" value="0" aria-label="AI 任务进度"></progress><p id="ai-task-message" class="ai-task-message" role="status" aria-live="polite"></p><p id="ai-task-warning" class="ai-task-warning" hidden></p><div id="ai-answer" class="ai-answer" hidden></div><details id="ai-task-scope" class="ai-task-scope" open><summary id="ai-task-scope-summary">本次选中的通知</summary><p class="ai-scope-hint">以点击「问问 AI」时的选择为准。后续筛选或获取通知不会改变本次任务。</p><ol id="ai-task-notices"></ol></details><div id="ai-reference-section" class="ai-reference-section" hidden><h4>正文来源与读取情况</h4><ul id="ai-references"></ul></div><p class="ai-result-note">AI 回答仅供辅助阅读，具体安排请核对官方原文及附件。</p></section>
+      </section>
       <div class="list-header" aria-hidden="true"><span>通知内容</span><span>发布日期</span></div>
       <div id="notice-list" aria-live="polite"></div>
       <div class="list-bottom"><span id="list-summary">尚未获取通知</span><button id="show-more" class="secondary" hidden>再显示 20 条 ↓</button></div>
@@ -27,5 +33,6 @@
     <aside class="scope-note"><span aria-hidden="true">ⓘ</span><p>6 个校级平台与 19 个学院／教学单位，共 25 个选定栏目。每个来源最多读取 5 页；时间筛选仅作用于已获取内容，不代表全校或所选时段的全部通知。通知正文及附件请以官方原文为准。<br>网页在本机运行，获取新通知需要联网；已获取内容保存在本机。</p></aside>
   </main>
   <footer><span>杭电通知集 <span class="footer-dot">·</span> 校园信息，一处汇集</span><span>学生开发原型 · 非学校官方平台</span></footer>
+  <dialog id="ai-settings-dialog" class="ai-settings-dialog" aria-labelledby="ai-settings-title" aria-describedby="ai-settings-description"><div class="dialog-heading"><h2 id="ai-settings-title">AI 设置</h2><button id="ai-settings-close" class="dialog-close" type="button" aria-label="关闭 AI 设置">×</button></div><p id="ai-settings-description">填写兼容 OpenAI 的接口地址和模型名。配置保存在本机；API Key 不会回显。</p><form id="ai-settings-form" autocomplete="off"><label class="settings-field" for="ai-base-url">Base URL<input id="ai-base-url" type="url" inputmode="url" placeholder="https://你的服务地址/v1" maxlength="2048" autocomplete="off" spellcheck="false"><span>使用 HTTPS，填写服务商提供的接口根地址。</span></label><label class="settings-field" for="ai-api-key">API Key<input id="ai-api-key" type="password" maxlength="4096" placeholder="输入 API Key" autocomplete="new-password" spellcheck="false"><span id="ai-key-state">尚未保存 API Key</span></label><button id="ai-clear-key" class="text-button clear-key-button" type="button" disabled>清除已保存的 Key</button><label class="settings-field" for="ai-model">模型名<input id="ai-model" type="text" placeholder="手动填写模型名" maxlength="200" autocomplete="off" spellcheck="false"><span>请与服务商支持的模型名称保持一致。</span></label><p class="settings-fee-note">「测试连接」会使用当前表单发送一次短提示词请求，模型可能先进行思考并产生少量费用；测试不会保存配置。</p><p id="ai-settings-message" class="settings-message" role="status" aria-live="polite"></p><div class="dialog-actions"><button id="ai-settings-test" class="secondary" type="button">测试连接</button><button id="ai-settings-save" class="primary" type="submit">保存设置</button></div></form></dialog>
 </body>
 </html>

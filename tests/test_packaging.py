@@ -17,6 +17,7 @@ class ReleaseTests(unittest.TestCase):
         files = {
             'VERSION': 'V1.0.0\n', 'version.py': 'APP_VERSION = "V1.0.0"\n',
             'server.py': '# server', 'sources.py': '# sources', 'portable_launcher.py': '# launcher',
+            'ai_service.py': '# offline AI service', 'notice_content.py': '# public notice reader',
             'README.md': '# Readme', 'LICENSE': 'MIT fixture', 'THIRD_PARTY_NOTICES.md': '# Notices',
             'CONTRIBUTING.md': '# Contributing', 'CHANGELOG.md': '# Changes', '.gitignore': 'data/',
             'start.cmd': '@echo off', 'start.ps1': '# start', 'stop.cmd': '@echo off', 'stop.ps1': '# stop',
@@ -28,6 +29,8 @@ class ReleaseTests(unittest.TestCase):
             'docs/images/desktop.png': 'PNG fixture', '.github/workflows/tests.yml': 'name: tests',
             'dist/HDUNotice/HDUNotice.exe': 'EXE fixture', 'dist/HDUNotice/_internal/python312.dll': 'DLL fixture',
             'data/portable-runtime.json': 'SECRET runtime', 'packaging/__pycache__/unsafe.pyc': 'SECRET pyc',
+            'data/ai-settings.json': 'SECRET ai-settings', 'data/ai-key.dpapi': 'SECRET protected-key',
+            'logs/server.log': 'SECRET runtime-log',
             'docs/.env': 'SECRET credential', 'docs/data/private.json': 'SECRET cache',
         }
         for name, content in files.items():
@@ -59,6 +62,20 @@ class ReleaseTests(unittest.TestCase):
             self.assertEqual(len(manifest), 3)
             for name, digest in manifest.items():
                 self.assertEqual(hashlib.sha256((out / name).read_bytes()).hexdigest(), digest)
+
+    def test_ai_modules_ship_without_runtime_settings_keys_or_logs(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            self.fixture(root)
+            out = package.export_release(root)
+            with zipfile.ZipFile(out / 'hdu-notice-hub-V1.0.0-source.zip') as archive:
+                names = {name.split('/', 1)[1] for name in archive.namelist()}
+                self.assertIn('ai_service.py', names)
+                self.assertIn('notice_content.py', names)
+                self.assertFalse(any(name.startswith(('data/', 'logs/')) for name in names))
+                exported = b'\n'.join(archive.read(name) for name in archive.namelist())
+                for private in (b'SECRET ai-settings', b'SECRET protected-key', b'SECRET runtime-log'):
+                    self.assertNotIn(private, exported)
 
     def test_dirty_build_cannot_leak_runtime_data_into_portable_zip(self):
         with tempfile.TemporaryDirectory() as folder:

@@ -1,8 +1,8 @@
-# 杭电通知集 V1.0.0 安装与使用手册
+# 杭电通知集 V1.0.1 安装与使用手册
 
 适用项目：[xiangyu-wang08/hdu-notice-hub](https://github.com/xiangyu-wang08/hdu-notice-hub)。
 
-杭电通知集将 25 个选定公开通知栏目的标题、发布日期和原文链接汇集到本机网页。它是学生开发项目，非学校官方平台；通知正文、附件、截止时间和办理要求请以官方原文为准。
+杭电通知集将 25 个选定公开通知栏目的标题、发布日期和原文链接汇集到本机网页，并提供可选的“问问 AI”辅助阅读。它是学生开发项目，非学校官方平台；通知正文、附件、截止时间和办理要求请以官方原文为准。
 
 ## 1. 先选择使用方式
 
@@ -12,26 +12,26 @@
 | Windows 免安装版 | 希望下载后直接使用 | Windows 10 / 11 x64、浏览器、可写文件夹 |
 | Python 源码版 | 已有 Python，或希望阅读、修改代码 | Python 3.10+、浏览器、完整源码 |
 
-免安装版不需要安装 Python、Node.js、Codex 或第三方依赖，也不需要学校账号或 API Key。源码版正常运行仅使用 Python 标准库，无需 `pip install`。获取新通知和打开官方原文需要网络；查看已保存的列表可以离线进行。
+免安装版不需要安装 Python、Node.js、Codex 或第三方依赖。默认普通搜索不需要学校账号或 API Key；可选 AI 功能需要自行配置兼容 OpenAI 的 HTTPS 接口、API Key 和模型名，可能产生服务商费用。源码版正常运行仅使用 Python 标准库，无需 `pip install`。获取新通知、打开原文及使用 AI 需要网络；查看已保存的列表可以离线进行。
 
-本手册主要说明 Windows 操作。源码可以在具备相应 Python 环境的系统中运行；安装版和便携版发布包均面向 Windows x64。
+本手册主要说明 Windows 操作。安装版和便携版发布包均面向 Windows x64。源码的普通搜索可在具备相应 Python 环境的系统中运行；AI 设置中的 Key 加密保存依赖当前 Windows 用户的 DPAPI。
 
 ## 2. 下载文件
 
-打开 [V1.0.0 发布页](https://github.com/xiangyu-wang08/hdu-notice-hub/releases/tag/V1.0.0)，在 Assets 中优先选择安装程序：
+打开 [V1.0.1 发布页](https://github.com/xiangyu-wang08/hdu-notice-hub/releases/tag/V1.0.1)，在 Assets 中优先选择安装程序：
 
 | 文件 | 用途 |
 | --- | --- |
-| [hdu-notice-hub-V1.0.0-windows-x64-Setup.exe](https://github.com/xiangyu-wang08/hdu-notice-hub/releases/download/V1.0.0/hdu-notice-hub-V1.0.0-windows-x64-Setup.exe) | 推荐：双击安装，之后从桌面或开始菜单启动，无需手动解压 |
-| [hdu-notice-hub-V1.0.0-windows-x64.zip](https://github.com/xiangyu-wang08/hdu-notice-hub/releases/download/V1.0.0/hdu-notice-hub-V1.0.0-windows-x64.zip) | 备用便携版，需要完整解压后运行 |
-| [hdu-notice-hub-V1.0.0-source.zip](https://github.com/xiangyu-wang08/hdu-notice-hub/releases/download/V1.0.0/hdu-notice-hub-V1.0.0-source.zip) | 完整项目源码，需要 Python |
-| [hdu-notice-hub-V1.0.0-install.pdf](https://github.com/xiangyu-wang08/hdu-notice-hub/releases/download/V1.0.0/hdu-notice-hub-V1.0.0-install.pdf) | 可下载保存的安装手册 |
+| [hdu-notice-hub-V1.0.1-windows-x64-Setup.exe](https://github.com/xiangyu-wang08/hdu-notice-hub/releases/download/V1.0.1/hdu-notice-hub-V1.0.1-windows-x64-Setup.exe) | 推荐：双击安装，之后从桌面或开始菜单启动，无需手动解压 |
+| [hdu-notice-hub-V1.0.1-windows-x64.zip](https://github.com/xiangyu-wang08/hdu-notice-hub/releases/download/V1.0.1/hdu-notice-hub-V1.0.1-windows-x64.zip) | 备用便携版，需要完整解压后运行 |
+| [hdu-notice-hub-V1.0.1-source.zip](https://github.com/xiangyu-wang08/hdu-notice-hub/releases/download/V1.0.1/hdu-notice-hub-V1.0.1-source.zip) | 完整项目源码，需要 Python |
+| [hdu-notice-hub-V1.0.1-install.pdf](https://github.com/xiangyu-wang08/hdu-notice-hub/releases/download/V1.0.1/hdu-notice-hub-V1.0.1-install.pdf) | 可下载保存的安装手册 |
 
 安装版只需下载 Setup.exe；选择便携版或源码版时保留 ZIP 便于再次解压。可同时下载 `SHA256.json`，在 PowerShell 中计算文件校验值，与清单中同名文件的值逐字比较：
 
 ```powershell
 $file = Join-Path $env:USERPROFILE 'Downloads'
-$file = Join-Path $file 'hdu-notice-hub-V1.0.0-windows-x64-Setup.exe'
+$file = Join-Path $file 'hdu-notice-hub-V1.0.1-windows-x64-Setup.exe'
 Get-FileHash -Algorithm SHA256 -LiteralPath $file
 ```
 
@@ -41,7 +41,7 @@ Get-FileHash -Algorithm SHA256 -LiteralPath $file
 
 ### 3.1 下载与安装
 
-在 V1.0.0 发布页点击 `hdu-notice-hub-V1.0.0-windows-x64-Setup.exe`。下载完成后双击，按中文安装向导接受 MIT 许可、确认目录并安装。不需要先解压 ZIP，也不需要安装 Python。
+在 V1.0.1 发布页点击 `hdu-notice-hub-V1.0.1-windows-x64-Setup.exe`。下载完成后双击，按中文安装向导接受 MIT 许可、确认目录并安装。不需要先解压 ZIP，也不需要安装 Python。
 
 默认目录为 `%LOCALAPPDATA%\Programs\HDUNoticeHub`，安装和快捷方式只面向当前用户，不要求管理员权限。也可以选择空目录，或本程序已有的安装目录；安装程序会拒绝覆盖不属于本程序的非空目录。
 
@@ -53,9 +53,9 @@ Get-FileHash -Algorithm SHA256 -LiteralPath $file
 
 ### 3.3 升级与卸载
 
-升级时下载新版 Setup.exe，安装到原目录；安装程序先关闭本程序服务，再替换程序文件并保留 `data/` 缓存。安装程序不会设置开机自启。
+升级时下载新版 Setup.exe，安装到原目录；安装程序先关闭本程序服务，再替换程序文件并保留 `data/` 中的通知缓存和 AI 设置。由 V1.0.0 升级时沿用已有缓存，AI 三项配置首次为空。安装程序不会设置开机自启。
 
-卸载时使用 Windows“设置 → 应用”中的“杭电通知集”，或开始菜单的“卸载”。卸载会关闭服务、移除程序文件、快捷方式和当前用户卸载登记，保留通知缓存和额外添加的文件。如需彻底删除，先备份所需内容，再手工删除残留安装目录。
+卸载时使用 Windows“设置 → 应用”中的“杭电通知集”，或开始菜单的“卸载”。卸载会关闭服务、移除程序文件、快捷方式和当前用户卸载登记，保留 `data/` 和额外添加的文件。若不再需要保存 Key，可先在“AI 设置”中清除；如需彻底删除，先备份所需内容，再手工删除残留安装目录。
 
 安装版网页功能、端口和筛选规则与下文便携版相同。
 
@@ -89,7 +89,7 @@ Get-FileHash -Algorithm SHA256 -LiteralPath $file
 3. 展开“通知来源”，点击来源的“查看详情”，核对错误、读取页数和数据日期范围。
 4. 点击通知条目中的原文链接，在官方网页核实完整要求与附件。
 
-首次启动没有历史缓存，列表为空是正常现象。新安装包不包含开发者电脑上的历史通知数据。
+全新安装没有历史缓存，列表为空是正常现象；AI 设置中的 Base URL、API Key 和模型名也均为空。正式发布包不包含使用者的 `data/`、历史通知、AI 配置、日志或凭据。
 
 ### 4.5 关闭和再次启动
 
@@ -115,12 +115,14 @@ python --version
 
 ### 5.2 下载并打开源码目录
 
-完整解压 `hdu-notice-hub-V1.0.0-source.zip`。打开包含下列内容的目录：
+完整解压 `hdu-notice-hub-V1.0.1-source.zip`。打开包含下列内容的目录：
 
 ```text
 portable_launcher.py
 server.py
 sources.py
+ai_service.py
+notice_content.py
 web/
 ```
 
@@ -189,9 +191,9 @@ python server.py --port 8766
 
 - “全部来源／校级平台／学院／教学单位”用于筛选分组，“具体来源”用于进一步选择栏目。
 - 时间范围可选近 7 天、近 30 天、近 90 天或全部已获取，依据通知发布日期筛选。
-- 搜索框匹配通知标题，不搜索正文或附件。
+- 普通搜索框匹配通知标题，不搜索正文或附件；AI 按第 7 节读取所选通知的公开 HTML 正文。
 - 默认分批显示列表，点击“再显示 20 条”继续浏览。
-- 图书馆等来源的部分原文可能指向微信公众号；程序只读取官方列表中的链接，不抓取公众号正文。
+- 图书馆等来源的部分原文可能指向微信公众号；可点击官方原文打开，AI 不保证能够读取这些正文，失败会说明原因。
 
 ### 6.3 状态判断
 
@@ -209,37 +211,73 @@ python server.py --port 8766
 
 点击“重试失败来源”只重试部分获取和失败的来源。两次获取之间至少等待 30 秒；间隔不足时，等待后再试，避免反复点击。
 
-## 7. 数据保存、离线、升级与卸载
+## 7. 可选：使用问问 AI
 
-### 7.1 本机保存位置
+### 7.1 配置自己的接口
 
-程序在自身目录下创建 `data/`，其中 `notices.json` 保存已获取的列表。启动器还会使用 `portable-runtime.json` 记录本机运行实例信息；它是运行控制文件，不是通知备份。
+打开网页中的“AI 设置”，填写下列三项。项目不预填平台、模型或共享 Key，使用者自行选择服务并承担其费用。
 
-源码版的数据目录与源码同级；免安装版的数据目录与 EXE 同级。程序不要求写入管理员目录，也不需要上传这些数据给项目维护者。
+| 项目 | 填写说明 |
+| --- | --- |
+| Base URL | 兼容 OpenAI 的 HTTPS 接口地址，可填到 `/v1` 等兼容前缀；程序追加 `/chat/completions`，也接受完整聊天端点。 |
+| API Key | 服务商提供的个人 Key，仅用于你配置的服务。 |
+| 模型名 | 手动填写服务商支持的准确模型名称。 |
 
-### 7.2 离线使用
+点击“保存设置”只保存，不调用模型。点击“测试连接”则使用当前表单发送一次短提示词请求，测试不会保存输入，也不需要先保存。测试与正常提问的输出预算均为最多 **1500 tokens（包含模型思考）**，可能产生费用，程序均不自动重试。测试成功后仍需点击保存才能保留新填内容。
 
-曾经成功保存缓存后，离线启动仍可查看并筛选本地列表。离线不能获取新通知，原文和附件也可能无法打开。缓存反映上次获取结果，请留意来源状态、发布日期和更新时间。
+Key 通过当前 Windows 用户的 **DPAPI** 加密写入程序目录的 `data/ai-settings.json`；Base URL 与模型名作为普通配置保存在该文件。Key 不以明文落盘、回显或写入日志，也不保存到浏览器存储。页面仅显示是否已保存。已有可用 Key 时，密码框留空再保存会保留它；输入新 Key 后保存可替换，点击“清除已保存的 Key”可删除本机保存的 Key。
 
-### 7.3 升级
+加密 Key 依赖当前电脑和 Windows 用户，便携目录复制到另一台电脑、换 Windows 用户或重装系统后可能无法解密，应重新填写。普通搜索不依赖 AI 配置。
+
+### 7.2 选择通知并提问
+
+1. 先获取通知，按来源、时间和标题关键词找到需要阅读的内容。
+2. 切换“问问 AI”。程序默认选中当前筛选结果中最新的 5 条，最多选择 10 条；可以手动增减。
+3. 填写最多 1000 字的问题。留空时默认整理主要内容、重要日期和个人需要完成的事项。
+4. 确认愿意将问题和所选正文发送给已配置的平台，再点击“问问 AI”。这一步可能产生费用。
+5. 查看读取进度、回答、“本次选中的通知”以及“正文来源与读取情况”，点击原文核对要求。
+
+改变来源、时间或关键词后，会重新默认选择最新 5 条；点击“再显示 20 条”保留勾选。任务以点击提问时的通知快照为准，后续筛选或获取不改变本次范围。一次仅运行一个 AI 操作，连接测试也计入其中。回答仅保存在当前服务内存，重启后不保留。
+
+### 7.3 读取范围与失败说明
+
+普通获取只读取列表；AI 提问才按需读取选中通知的公开 HTML 正文，**不解析附件、不做 OCR**。报名表、附件中的截止时间、图片内文字等应直接查看官方原文及附件。
+
+正文最多 4 路并发读取，单页超时 15 秒；每篇最多 6000 字，整批最多 30000 字，超出时保留首尾并显示截断提示。没有可用正文时不调用模型；部分失败时列出未读取的通知及原因，不能从标题推断为已读正文。模型请求最多等待 90 秒，不自动重试。
+
+回答以纯文本显示，程序另外列出正文来源、原文链接和读取情况。接口认证失败、额度不足、超时、输出预算耗尽导致空回答、仅返回思考内容等会给出对应提示。回答仍可能遗漏或误读，请核对官方日期、办理要求和附件。
+
+## 8. 数据保存、离线、升级与卸载
+
+### 8.1 本机保存位置
+
+程序在自身目录下创建 `data/`：`notices.json` 保存已获取的列表，`ai-settings.json` 保存 AI 接口配置与 DPAPI 加密 Key。启动器还会使用 `portable-runtime.json` 记录本机运行实例信息；它是运行控制文件，不是通知备份。
+
+源码版的数据目录与源码同级；免安装版的数据目录与 EXE 同级。程序不要求写入管理员目录。发布包排除整个 `data/`、运行记录与凭据；转交程序请使用干净的正式发布 ZIP，勿发送自己运行后的目录或 AI 配置。
+
+### 8.2 离线使用
+
+曾经成功保存缓存后，离线启动仍可查看并筛选本地列表。离线不能获取新通知或使用 AI，原文和附件也可能无法打开。缓存反映上次获取结果，请留意来源状态、发布日期和更新时间。
+
+### 8.3 升级
 
 安装版按照第 3.3 节运行新版 Setup.exe。下面步骤适用于便携 ZIP 和源码 ZIP：
 
 1. 关闭旧版服务。
-2. 如需保留缓存，先将旧目录中的 `data/notices.json` 复制到独立备份位置。
+2. 如需保留数据，先将旧目录中的 `data/` 复制到自己的独立备份位置；其中可能包含加密 Key，请勿公开分享。
 3. 将新版 ZIP 完整解压到一个新文件夹，不要在运行中的目录里覆盖文件。
-4. 先确认新版能够启动。若希望尝试沿用缓存，可在服务停止时，把备份的 `notices.json` 放入新版 `data/` 目录。
+4. 先确认新版能够启动。服务停止时，可将备份的 `notices.json` 放入新版 `data/`。已有 AI 配置可在同一电脑、同一 Windows 用户下迁移 `ai-settings.json`；换电脑或 Windows 用户请重新填写 Key。
 5. 重新启动并联网获取；如果提示缓存无法读取，保留备份，重新获取即可。
 
-不要迁移 `portable-runtime.json`，也不要把旧版 `_internal` 与新版混合。缓存兼容性应以新版说明为准，独立备份能避免覆盖后无法恢复。
+从 V1.0.0 升级到 V1.0.1 可沿用已有通知缓存；旧版没有 AI 配置，首次自行填写即可。全新解压不迁入数据时，通知列表和 AI 三项均为空。不要迁移 `portable-runtime.json`，也不要把旧版 `_internal` 与新版混合；后续版本的兼容性以对应说明为准。
 
-### 7.4 卸载
+### 8.4 卸载
 
 安装版使用第 3.3 节的 Windows 应用卸载或开始菜单入口，默认保留缓存；下面的直接删除方式适用于便携版与源码版。
 
-关闭服务后，删除整个解压文件夹即可。需要保留记录时先备份 `data/notices.json`。程序不自动设置开机启动。
+关闭服务后，删除整个解压文件夹即可。需要保留记录时先备份 `data/`，不再需要 Key 时可先在 AI 设置中清除。程序不自动设置开机启动。
 
-## 8. 常见问题
+## 9. 常见问题
 
 ### 双击后没有页面，或提示缺少文件
 
@@ -279,8 +317,16 @@ python server.py --port 8766
 
 已经显示的页面可能仍留在标签页中。点击获取会无法连接；这不表示服务仍在运行。可关闭网页；下次启动后使用新的服务窗口地址访问。
 
-## 9. 反馈与许可
+### AI 配置无法使用，或换电脑后提示无法解密
 
-反馈入口：[GitHub Issues](https://github.com/xiangyu-wang08/hdu-notice-hub/issues)。请提供 V1.0.0、系统类型、运行方式、具体来源、复现步骤和完整错误，提交前去除个人信息与凭据。
+确认 Base URL 使用 HTTPS、模型名准确、Key 有效，按服务商说明检查额度和访问权限。更换电脑或 Windows 用户后重新输入 Key 并保存；同一用户升级安装会保留原数据。连接测试会收费且不自动保存，手工重试前先确认上一次结果。
+
+### AI 显示读取失败、没有正文或空回答
+
+打开所列原文核对页面是否可访问。附件、扫描图片、访问限制或不支持的页面可能没有可用 HTML 正文；可减少选择数量后再次提交。若提示输出预算耗尽或仅返回思考内容，按服务商支持情况选择适合的模型。程序不会自动再次发出付费请求，请结合提示自行决定是否重试。
+
+## 10. 反馈与许可
+
+反馈入口：[GitHub Issues](https://github.com/xiangyu-wang08/hdu-notice-hub/issues)。请提供 V1.0.1、系统类型、运行方式、具体来源、复现步骤和完整错误，提交前去除个人信息与凭据。反馈 AI 问题时不要提交 API Key、`ai-settings.json` 或未经检查的 `data/` 目录。
 
 项目代码与文档按 [MIT License](../LICENSE) 开源，第三方组件遵循各自许可，见 [第三方说明](../THIRD_PARTY_NOTICES.md)。学校网站的通知原文和附件仍归各自权利人所有。

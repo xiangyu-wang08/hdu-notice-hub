@@ -33,7 +33,7 @@ class InstanceTests(unittest.TestCase):
     def test_concurrent_launches_leave_one_server_and_stop_all_own_processes(self):
         with tempfile.TemporaryDirectory(prefix='并发 launch ') as folder:
             target = Path(folder)
-            for name in ('server.py', 'sources.py', 'portable_launcher.py', 'version.py'):
+            for name in ('server.py', 'sources.py', 'ai_service.py', 'notice_content.py', 'portable_launcher.py', 'version.py'):
                 shutil.copy2(ROOT / name, target / name)
             shutil.copytree(ROOT / 'web', target / 'web')
             command = [sys.executable, '-B', str(target / 'portable_launcher.py')]

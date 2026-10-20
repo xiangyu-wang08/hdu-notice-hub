@@ -35,7 +35,7 @@ def check(bundle=None, scripts=False, source_root=ROOT, concurrent=False):
             shutil.copytree(bundle, target, dirs_exist_ok=True)
             command = [str(target / '杭电通知集.exe')]
         else:
-            for name in ('server.py', 'sources.py', 'portable_launcher.py', 'version.py', 'start.cmd', 'start.ps1', 'stop.cmd', 'stop.ps1'):
+            for name in ('server.py', 'sources.py', 'ai_service.py', 'notice_content.py', 'portable_launcher.py', 'version.py', 'start.cmd', 'start.ps1', 'stop.cmd', 'stop.ps1'):
                 shutil.copy2(source_root / name, target / name)
             shutil.copytree(source_root / 'web', target / 'web')
             command = [sys.executable, '-B', str(target / 'portable_launcher.py')]
@@ -98,6 +98,11 @@ def check(bundle=None, scripts=False, source_root=ROOT, concurrent=False):
             port = record['port']
             assert port != 8765
             assert len(state['sources']) == 25 and state['notices'] == []
+            assert not (target / 'data/ai-settings.json').exists()
+            assert json.loads(request(port, '/api/ai/settings')) == {
+                'base_url': '', 'model': '', 'key_saved': False, 'configured': False, 'warning': None,
+            }
+            assert not (target / 'data/ai-settings.json').exists(), 'Reading empty settings persisted runtime configuration'
             for path in ('/', '/app.js', '/style.css', '/favicon.svg'):
                 assert request(port, path)
             duplicate = subprocess.run(launch_command, cwd=target, env=env, capture_output=True, timeout=10, creationflags=FLAGS)
@@ -134,7 +139,7 @@ def check(bundle=None, scripts=False, source_root=ROOT, concurrent=False):
                 assert not runtime.exists()
                 proc = None
             print(json.dumps(dict(mode='scripts' if scripts else ('portable' if bundle else 'source'), version=APP_VERSION, pass_=True, concurrent_launches=4 if concurrent else 1,
-                                  checks=['version', 'clean-first-run', '25-sources', 'assets', 'port-fallback', 'repeat-launch', 'origin-and-shutdown-token', 'invalid-selection', 'cache-restart', 'graceful-stop']), ensure_ascii=False))
+                                  checks=['version', 'clean-first-run', 'blank-ai-settings', '25-sources', 'assets', 'port-fallback', 'repeat-launch', 'origin-and-shutdown-token', 'invalid-selection', 'cache-restart', 'graceful-stop']), ensure_ascii=False))
         finally:
             if proc and proc.poll() is None:
                 subprocess.run(stop_command, cwd=target, env=env, capture_output=True, timeout=15, creationflags=FLAGS)

@@ -13,5 +13,5 @@ class LauncherTests(unittest.TestCase):
             result = subprocess.run([sys.executable, '-B', str(launcher), '--version'], cwd=folder,
                                     capture_output=True, text=True, timeout=10)
             self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertEqual(result.stdout.strip(), 'V1.0.0')
+            self.assertEqual(result.stdout.strip(), 'V1.0.1')
             self.assertEqual(list(Path(folder).iterdir()), [])

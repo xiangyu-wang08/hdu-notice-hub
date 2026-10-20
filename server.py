@@ -341,6 +341,25 @@ class Store:
 
 class Handler(BaseHTTPRequestHandler):
     store: Store
+    _ai_setup_lock = threading.Lock()
+
+    def get_ai_service(self):
+        # One service per HTTP server; tests and previews can inject isolated services.
+        with self._ai_setup_lock:
+            if not hasattr(self.server, 'ai_service'):
+                from ai_service import AIService
+                self.server.ai_service = AIService(self.store, ROOT / 'data' / 'ai-settings.json')
+        return self.server.ai_service
+
+    def ai_response(self, operation, code=200):
+        try:
+            return self.respond(operation(self.get_ai_service()), code)
+        except Exception as exc:
+            from ai_service import AIError
+            if isinstance(exc, AIError):
+                return self.respond({'error': str(exc)}, exc.status)
+            # Never include raw upstream exceptions, credentials or request bodies.
+            return self.respond({'error': 'AI 服务暂时不可用，请检查设置后重试。'}, 503)
 
     def respond(self, payload, code=200, mime='application/json; charset=utf-8'):
         data = json.dumps(payload, ensure_ascii=False).encode('utf-8') if not isinstance(payload, bytes) else payload
@@ -365,6 +384,13 @@ class Handler(BaseHTTPRequestHandler):
         path = urlsplit(self.path).path
         if path == '/api/state':
             return self.respond(self.store.snapshot())
+        if path == '/api/ai/settings':
+            return self.ai_response(lambda ai: ai.get_settings())
+        if path.startswith('/api/ai/tasks/'):
+            task_id = path.removeprefix('/api/ai/tasks/')
+            if not re.fullmatch(r'[A-Za-z0-9_-]{1,100}', task_id):
+                return self.respond({'error': '未找到 AI 任务'}, 404)
+            return self.ai_response(lambda ai: ai.get_task(task_id))
         files = {'/': ('index.html', 'text/html'), '/app.js': ('app.js', 'text/javascript'), '/style.css': ('style.css', 'text/css'), '/favicon.svg': ('favicon.svg', 'image/svg+xml')}
         if path not in files:
             return self.respond({'error': '未找到页面'}, 404)
@@ -375,15 +401,22 @@ class Handler(BaseHTTPRequestHandler):
         expected = {f'http://127.0.0.1:{self.server.server_port}', f'http://localhost:{self.server.server_port}'}
         if not self.local_request() or self.headers.get('Origin') not in expected or self.headers.get('Content-Type') != 'application/json':
             return self.respond({'error': '请从本机网页操作'}, 403)
-        if self.path != '/api/refresh':
+        ai_routes = {'/api/ai/settings', '/api/ai/test', '/api/ai/tasks'}
+        if self.path != '/api/refresh' and self.path not in ai_routes:
             return self.respond({'error': '未找到接口'}, 404)
         try:
             length = int(self.headers.get('Content-Length', '0'))
-            if not 0 <= length <= 1024:
+            if not 0 <= length <= (65536 if self.path in ai_routes else 1024):
                 raise ValueError()
             payload = json.loads(self.rfile.read(length) or b'{}')
             if not isinstance(payload, dict):
                 raise ValueError()
+            if self.path == '/api/ai/settings':
+                return self.ai_response(lambda ai: ai.save_settings(payload))
+            if self.path == '/api/ai/test':
+                return self.ai_response(lambda ai: ai.test_connection(payload))
+            if self.path == '/api/ai/tasks':
+                return self.ai_response(lambda ai: ai.create_task(payload.get('notice_ids'), payload.get('question', '')), 202)
             status = self.store.start_refresh(payload.get('source_ids'))
         except (ValueError, UnicodeError):
             return self.respond({'error': '请求格式错误'}, 400)

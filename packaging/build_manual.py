@@ -1,6 +1,6 @@
 """Build the release installation manual from docs/INSTALL.md.
 
-Usage (run from any directory):
+Usage (run from the repository root):
     python -m pip install -r packaging/docs-requirements.txt
     python packaging/build_manual.py
 
@@ -45,6 +45,9 @@ from reportlab.platypus import (
 )
 
 ROOT = Path(__file__).resolve().parents[1]
+RELEASE_VERSION = (ROOT / "VERSION").read_text(encoding="utf-8-sig").strip()
+if not re.fullmatch(r"V\d+\.\d+\.\d+", RELEASE_VERSION):
+    raise ValueError("VERSION must use the public release format V<major>.<minor>.<patch>")
 NAVY = colors.HexColor("#17314c")
 BLUE = colors.HexColor("#21659a")
 INK = colors.HexColor("#253547")
@@ -347,7 +350,7 @@ class ManualTemplate(BaseDocTemplate):
         canvas.setFillColor(MUTED)
         canvas.setFont(FONT, 7.3)
         canvas.drawString(self.leftMargin, page_height - 27, "杭电通知集 / 安装与使用手册")
-        canvas.drawRightString(page_width - self.rightMargin, page_height - 27, "V1.0.0")
+        canvas.drawRightString(page_width - self.rightMargin, page_height - 27, RELEASE_VERSION)
         canvas.setStrokeColor(RULE)
         canvas.setLineWidth(0.5)
         canvas.line(self.leftMargin, page_height - 35, page_width - self.rightMargin, page_height - 35)
@@ -376,7 +379,7 @@ def main() -> None:
     parser.add_argument("--font", help="Embeddable Chinese TTF or first TTC face")
     parser.add_argument("--bold-font", help="Embeddable Chinese bold TTF/TTC")
     parser.add_argument("--mono-font", help="Embeddable monospaced TTF/TTC")
-    parser.add_argument("--base-url", default="https://github.com/xiangyu-wang08/hdu-notice-hub/blob/V1.0.0/docs/")
+    parser.add_argument("--base-url", default=f"https://github.com/xiangyu-wang08/hdu-notice-hub/blob/{RELEASE_VERSION}/docs/")
     args = parser.parse_args()
     font_details = register_fonts(args)
     source_bytes = args.input.read_bytes()
@@ -385,13 +388,14 @@ def main() -> None:
     # Stable PDF IDs/timestamps allow identical rebuilds with the same runtime/fonts.
     rl_config.invariant = 1
     document = ManualTemplate(
-        args.output, title="杭电通知集 V1.0.0 安装与使用手册",
-        author="hdu-notice-hub contributors", subject="Windows 免安装版与 Python 源码版安装、使用和排查",
+        args.output, title=f"杭电通知集 {RELEASE_VERSION} 安装与使用手册",
+        author="hdu-notice-hub contributors", subject="Windows 安装版、免安装版与 Python 源码版使用、AI 设置和排查",
         pageCompression=1,
     )
     story = markdown_flowables(source, make_styles(), document.width, args.base_url)
     document.build(story)
     print(json.dumps({
+        "version": RELEASE_VERSION,
         "input": str(args.input.resolve()), "output": str(args.output.resolve()),
         "markdown_sha256": hashlib.sha256(source_bytes).hexdigest(),
         "pdf_sha256": hashlib.sha256(args.output.read_bytes()).hexdigest(),
